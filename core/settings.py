@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     
     'stocks',
     'django_celery_beat',
+    'django_celery_results',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -127,3 +129,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CELERY_BROKER_URL = 'pyamqp://admin:admin@localhost//'
 CELERY_TIMEZONE = 'America/Sao_Paulo'
+CELERY_RESULT_BACKEND = 'django-db'
