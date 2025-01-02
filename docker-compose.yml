@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   rabbitmq:
     image: rabbitmq:3.13-management
@@ -14,6 +15,55 @@ services:
     restart: unless-stopped
     labels:
       com.example.service: "rabbitmq"
+
+  install-requirements:
+    image: python:3.10-slim
+    container_name: install-requirements
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: pip install -r requirements.txt
+    depends_on:
+      - rabbitmq
+    restart: on-failure
+
+  celery-worker:
+    image: python:3.10-slim
+    container_name: celery-worker
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: celery -A core worker -l INFO
+    depends_on:
+      - rabbitmq
+      - install-requirements
+    restart: on-failure
+
+  celery-beat:
+    image: python:3.10-slim
+    container_name: celery-beat
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: celery -A core beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    depends_on:
+      - rabbitmq
+      - install-requirements
+    restart: on-failure
+
+  django:
+    image: python:3.10-slim
+    container_name: django-server
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: python manage.py runserver 0.0.0.0:8000
+    depends_on:
+      - rabbitmq
+      - install-requirements
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
 
 volumes:
   rabbitmq_data:
