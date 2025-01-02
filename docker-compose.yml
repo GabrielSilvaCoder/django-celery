@@ -2,9 +2,18 @@ version: '3.8'
 services:
   rabbitmq:
     image: rabbitmq:3.13-management
+    container_name: rabbitmq
     ports:
       - '5672:5672'
       - '15672:15672'
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
     environment:
-      RABBITMQ_DEFAULT_USER: user
-      RABBITMQ_DEFAULT_PASS: password
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+    restart: unless-stopped
+    labels:
+      com.example.service: "rabbitmq"
+
+volumes:
+  rabbitmq_data:
