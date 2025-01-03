@@ -13,43 +13,52 @@ services:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin
     restart: unless-stopped
-    labels:
-      com.example.service: "rabbitmq"
 
-  base-python:
+  celery-worker:
+    container_name: celery-worker
+    image: python:3.10-slim  
+    command: celery -A core worker -l INFO
+    depends_on:
+      - rabbitmq
+    volumes:
+      - .:/app  
+    working_dir: /app 
+    restart: unless-stopped
+
+  celery-beat:
+    container_name: celery-beat
+    image: python:3.10-slim  
+    command: celery -A core beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    depends_on:
+      - rabbitmq
+    volumes:
+      - .:/app  
+    working_dir: /app 
+    restart: unless-stopped
+
+  django:
+    container_name: django-app
+    image: python:3.10-slim  
+    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app  
+    depends_on:
+      - rabbitmq
+    restart: unless-stopped
+    working_dir: /app  
+
+  django-create-superuser:
     image: python:3.10-slim
-    container_name: base-python
+    container_name: django-create-superuser
     working_dir: /app
     volumes:
       - .:/app
-    command: ["sh", "-c", "pip install -r requirements.txt"]
-    restart: on-failure
-
-  celery-worker:
-    extends:
-      service: base-python
-    container_name: celery-worker
-    command: ["sh", "-c", "celery -A core worker -l INFO"]
+    command: python manage.py createsuperuser --noinput --username admin --email admin@example.com
     depends_on:
-      - rabbitmq
-
-  celery-beat:
-    extends:
-      service: base-python
-    container_name: celery-beat
-    command: ["sh", "-c", "celery -A core beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler"]
-    depends_on:
-      - rabbitmq
-
-  django:
-    extends:
-      service: base-python
-    container_name: django-app
-    command: ["sh", "-c", "python manage.py runserver 0.0.0.0:8000"]
-    ports:
-      - "8000:8000"
-    depends_on:
-      - rabbitmq
+      - django
+    restart: "no"
 
 volumes:
   rabbitmq_data:
