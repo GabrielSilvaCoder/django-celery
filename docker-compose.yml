@@ -16,27 +16,40 @@ services:
     labels:
       com.example.service: "rabbitmq"
 
-  celery-worker:
+  base-python:
     image: python:3.10-slim
-    container_name: celery-worker
+    container_name: base-python
     working_dir: /app
     volumes:
       - .:/app
+    command: ["sh", "-c", "pip install -r requirements.txt"]
+    restart: on-failure
+
+  celery-worker:
+    extends:
+      service: base-python
+    container_name: celery-worker
     command: ["sh", "-c", "celery -A core worker -l INFO"]
     depends_on:
       - rabbitmq
-    restart: on-failure
 
   celery-beat:
-    image: python:3.10-slim
+    extends:
+      service: base-python
     container_name: celery-beat
-    working_dir: /app
-    volumes:
-      - .:/app
     command: ["sh", "-c", "celery -A core beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler"]
     depends_on:
       - rabbitmq
-    restart: on-failure
+
+  django:
+    extends:
+      service: base-python
+    container_name: django-app
+    command: ["sh", "-c", "python manage.py runserver 0.0.0.0:8000"]
+    ports:
+      - "8000:8000"
+    depends_on:
+      - rabbitmq
 
 volumes:
   rabbitmq_data:
