@@ -86,9 +86,11 @@ Este projeto implementa um sistema de agendamento e execução de tarefas em tem
 
     Para programar a execução de uma ação, siga os passos abaixo:
 
-    1.No painel de administração, navegue até a seção Periodic Tasks (disponível se você configurou o django_celery_beat).
-    2.Clique em Add Periodic Task.
-    3.Preencha os seguintes campos:
+    1- No painel de administração, navegue até a seção Periodic Tasks (disponível se você configurou o django_celery_beat).
+    
+    2- Clique em Add Periodic Task.
+    
+    3- Preencha os seguintes campos:
         Name: Um nome descritivo para a tarefa.
         Task: Escolha a tarefa registrada correspondente no Celery.
         Interval ou Crontab: Defina o intervalo ou cronograma de execução.
@@ -97,7 +99,7 @@ Este projeto implementa um sistema de agendamento e execução de tarefas em tem
        ["NomeDaAção"]
 
 
-13. **Monitorar Ações Salvas na Tabela stocks**
+14. **Monitorar Ações Salvas na Tabela stocks**
 
     Para acompanhar as ações capturadas e armazenadas no banco de dados:
 
