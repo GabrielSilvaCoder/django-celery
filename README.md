@@ -70,6 +70,37 @@ Este projeto implementa um sistema de agendamento e execução de tarefas em tem
 
 10. **Executar o scheduler do Celery**
 
-    Por fim, inicie o scheduler do Celery para agendar as tarefas:
+    Inicie o scheduler do Celery para agendar as tarefas:
     ```bash
     celery -A core beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
+
+
+11. **Acessar o Django Admin**
+
+    Após iniciar o servidor, acesse o painel de administração do Django em:
+    ```bash
+    http://localhost:8000/admin
+
+
+12. **Adicionar uma Tarefa Periódica (Periodic Task)**
+
+    Para programar a execução de uma ação, siga os passos abaixo:
+
+    1.No painel de administração, navegue até a seção Periodic Tasks (disponível se você configurou o django_celery_beat).
+    2.Clique em Add Periodic Task.
+    3.Preencha os seguintes campos:
+        Name: Um nome descritivo para a tarefa.
+        Task: Escolha a tarefa registrada correspondente no Celery.
+        Interval ou Crontab: Defina o intervalo ou cronograma de execução.
+        Arguments: Adicione os argumentos necessários no formato JSON, como:
+       ```bash
+       ["NomeDaAção"]
+
+
+13. **Monitorar Ações Salvas na Tabela stocks**
+
+    Para acompanhar as ações capturadas e armazenadas no banco de dados:
+
+    Utilize ferramentas como o Django Admin para visualizar os registros.
+        Navegue até a seção correspondente ao modelo stocks.
+        Verifique as entradas armazenadas com detalhes como nome da ação, valor capturado, e timestamp.
